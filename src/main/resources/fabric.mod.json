@@ -1,0 +1,24 @@
+{
+    "schemaVersion": 1,
+    "id": "modmenu",
+    "version": "${version}",
+    "name": "Mod Menu",
+    "description": "Cheese is good :>",
+    "authors": [
+      "Neuxs"
+    ],
+    "license": "MIT",
+    "environment": "*",
+    "entrypoints": {
+      "main": [
+        "info.neuxs.modmenu.Client"
+      ]
+    },
+    "mixins": [
+      "modmenu.mixins.json"
+    ],
+    "depends": {
+      "fabricloader": ">=0.15.7",
+      "cosmic_reach": ">=0.1.0"
+    }
+}
