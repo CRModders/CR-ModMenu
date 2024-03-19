@@ -14,14 +14,10 @@ import java.security.ProtectionDomain;
 import java.util.*;
 
 public class FabricModGrabber {
-    File modsFolder = FabricLoader.getInstance().getGameDir().resolve("mods").toFile();
-    static List<ModContainer> allMods = new ArrayList<>();
-    static List<ModContainer> filteredMods = new ArrayList<>();
+    private static final FabricLoader fabricInstance = FabricLoader.getInstance();
+    File modsFolder = fabricInstance.getGameDir().resolve("mods").toFile();
 
-    private static void getAllMods() {
-        allMods.addAll(FabricLoader.getInstance().getAllMods());
-    }
-
+    /*
     public static void filterModList() {
         getAllMods();
 
@@ -40,38 +36,22 @@ public class FabricModGrabber {
 
         filteredMods.sort(Comparator.comparing(mod -> mod.getMetadata().getName()));
     }
+    */
 
     public static File getModDir() {
-        try {
-            ProtectionDomain domain = Client.class.getProtectionDomain();
-            CodeSource source = domain.getCodeSource();
-            URL location = source.getLocation();
-            URI uri = location.toURI();
-            String path = uri.getPath();
-            String decodedPath = URLDecoder.decode(path, "UTF-8");
-
-            File jarFile = new File(decodedPath);
-            String rootDirectory = jarFile.getParentFile().getAbsolutePath();
-
-            return new File(rootDirectory);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new File("Exception");
-        }
+        return fabricInstance.getGameDir().toFile();
     }
 
-    public static int getModCount(boolean filteredList) {
-        if (filteredList) return filteredMods.size();
-        else return allMods.size();
+    public static int getModCount() {
+        return fabricInstance.getAllMods().size();
     }
 
-    public static String grabName(int mod, boolean filteredList) {
-        if (filteredList) return filteredMods.get(mod).getMetadata().getName();
-        else return allMods.get(mod).getMetadata().getName();
+    public static String grabName(String mod) {
+        return fabricInstance.getModContainer(mod).get().getMetadata().getName();
     }
 
-    public static String grabAuthors(int mod) {
-        Collection<Person> originalAuthors = filteredMods.get(mod).getMetadata().getAuthors();
+    public static String grabAuthors(String mod) {
+        Collection<Person> originalAuthors = fabricInstance.getModContainer(mod).get().getMetadata().getAuthors();
         List<Person> authors = new ArrayList<>(originalAuthors);
 
         StringBuilder authorsString = new StringBuilder();
@@ -87,11 +67,11 @@ public class FabricModGrabber {
     }
 
 
-    public static String grabDescription(int mod) {
-        return filteredMods.get(mod).getMetadata().getDescription();
+    public static String grabDescription(String mod) {
+        return fabricInstance.getModContainer(mod).get().getMetadata().getDescription();
     }
 
-    public static String grabVersion(int mod) {
-        return filteredMods.get(mod).getMetadata().getVersion().toString();
+    public static String grabVersion(String mod) {
+        return fabricInstance.getModContainer(mod).get().getMetadata().getVersion().getFriendlyString();
     }
 }

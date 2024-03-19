@@ -8,9 +8,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import finalforeach.cosmicreach.gamestates.GameState;
 import finalforeach.cosmicreach.ui.FontRenderer;
 import finalforeach.cosmicreach.ui.UIElement;
-import info.neuxs.modmenu.utils.AssetModGrabber;
-import info.neuxs.modmenu.utils.ModGrabber;
+import info.neuxs.modmenu.utils.FabricModGrabber;
 import info.neuxs.modmenu.utils.Render;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 
 import java.awt.*;
 import java.io.IOException;
@@ -22,7 +24,7 @@ public class ModMenu extends GameState {
     private Boolean isSearching = false;
     private SpriteBatch batch = new SpriteBatch();
     private Viewport uiViewport;
-    private int selMod = -1;
+    private String selMod = "";
 
     public ModMenu(final GameState previousState) {
         this.previousState = previousState;
@@ -72,17 +74,19 @@ public class ModMenu extends GameState {
         this.uiElements.add(returnButton);
 
         // Side mod buttons
-        for (int i = 0; ModGrabber.getModCount(true) > i; i++) {
-            int finalI = i;
-            UIElement modButton = new UIElement(-405.0F, -270.0F + (finalI * 60), 250.0F, 50.0F) {
+        int modIndex = 0;
+        for (ModContainer mod: FabricLoader.getInstance().getAllMods()) {
+            UIElement modButton = new UIElement(-405.0F, -270.0F + (modIndex * 60), 250.0F, 50.0F) {
                 public void onClick() {
                     super.onClick();
-                    selMod = finalI;
+                    selMod = mod.getMetadata().getId();
                 }
             };
-            modButton.setText(grabName(i, true));
+            modButton.setText(mod.getMetadata().getName());
             modButton.show();
             this.uiElements.add(modButton);
+
+            modIndex ++;
         }
     }
 
@@ -109,10 +113,10 @@ public class ModMenu extends GameState {
 
         // Mod Info
 
-        if (selMod >= 0) {
+        if (!selMod.isBlank()) {
             batch.setProjectionMatrix(this.uiCamera.combined);
             batch.begin();
-            updateModInfo(grabName(selMod, true), grabAuthors(selMod), grabVersion(selMod), grabDescription(selMod));
+            updateModInfo(grabName(selMod), grabAuthors(selMod), grabVersion(selMod), grabDescription(selMod));
             batch.end();
         }
 
